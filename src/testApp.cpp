@@ -2,14 +2,24 @@
 #include "stdio.h"
 
 //--------------------------------------------------------------
+// Variables for now
+
+int yPositionMouse= 0;
+int xPositionMouse= 0;
+int xOffsetVideo = 20;
+int yOffsetVideo = 20;
+int totalSizeVideo = 0;
+int numberClips = 3;
+
+//--------------------------------------------------------------
 // constructeur de l'application test 
 testApp::testApp(){
-
 }
 
 //--------------------------------------------------------------
 void testApp::setup(){
 	ofBackground(255,255,255);
+	totalSizeVideo = MasterShot.width;
 
 	printf("Hello world !\n");
 	
@@ -41,6 +51,12 @@ void testApp::update(){
 	TVedit.idleMovie();
 }
 
+void testApp::drawDividedScreenClip(){
+	int i=1;
+	MasterShot.draw(xOffsetVideo,yOffsetVideo,MasterShot.width/2, MasterShot.height);
+	//xOffsetVideo-((numberClips-i)*totalSizeVideo/(2*numberClips)),
+}
+
 //--------------------------------------------------------------
 void testApp::draw(){
 
@@ -48,24 +64,28 @@ void testApp::draw(){
 	ofSetColor(0xFFFFFF);
 	
 	switch (selectedChannel) {
+		case 0:
+			drawDividedScreenClip();
+			
+			break;
 		case 1:
-			MasterShot.draw(20,20);
+			MasterShot.draw(xOffsetVideo,yOffsetVideo);
 			break;
 		case 2:
-			ChordsHand.draw(20,20);
+			ChordsHand.draw(xOffsetVideo,yOffsetVideo);
 			break;
 		case 3:
-			PickinHand.draw(20,20);
+			PickinHand.draw(xOffsetVideo,yOffsetVideo);
 			break;
 		case 4:
-			TVedit.draw(20,20);
+			TVedit.draw(xOffsetVideo,yOffsetVideo);
 			break;
 		default:
 			break;
 	}
 
 	if (!suspendNow)
-		MasterShot.draw(20,20);
+		MasterShot.draw(xOffsetVideo,yOffsetVideo);
     
     ofSetColor(0x000000);
     unsigned char * pixels = MasterShot.getPixels();
@@ -88,10 +108,13 @@ void testApp::draw(){
     if(!frameByframe) ofSetColor(0xCCCCCC); else ofSetColor(0x000000);
     ofDrawBitmapString("keys <- -> frame by frame " ,190,340);
     ofSetColor(0x000000);
+	
+	ofDrawBitmapString("mousePosition: " + ofToString(xPositionMouse) + "/"+ofToString(yPositionMouse),20,380);
+    
 
-    ofDrawBitmapString("frame: " + ofToString(MasterShot.getCurrentFrame()) + "/"+ofToString(MasterShot.getTotalNumFrames()),20,380);
-    ofDrawBitmapString("duration: " + ofToString(MasterShot.getPosition()*MasterShot.getDuration(),2) + "/"+ofToString(MasterShot.getDuration(),2),20,400);
-    ofDrawBitmapString("speed: " + ofToString(MasterShot.getSpeed(),2),20,420);
+    ofDrawBitmapString("frame: " + ofToString(MasterShot.getCurrentFrame()) + "/"+ofToString(MasterShot.getTotalNumFrames()),20,420);
+    ofDrawBitmapString("duration: " + ofToString(MasterShot.getPosition()*MasterShot.getDuration(),2) + "/"+ofToString(MasterShot.getDuration(),2),20,440);
+    ofDrawBitmapString("speed: " + ofToString(MasterShot.getSpeed(),2),20,460);
 
     if(MasterShot.getIsMovieDone()){
         ofSetColor(0xFF0000);
@@ -99,9 +122,13 @@ void testApp::draw(){
     }
 }
 
+
 //--------------------------------------------------------------
 void testApp::keyPressed  (int key){
     switch(key){
+		case '0':
+            selectedChannel = 0;
+			break;
 		case '1':
             selectedChannel = 1;
 		break;
@@ -130,7 +157,7 @@ void testApp::keyPressed  (int key){
         case OF_KEY_RIGHT:
             MasterShot.nextFrame();
         break;
-        case '0':
+        case 'b':
             MasterShot.firstFrame();
         break;
     }
@@ -143,6 +170,8 @@ void testApp::keyReleased(int key){
 
 //--------------------------------------------------------------
 void testApp::mouseMoved(int x, int y ){
+	xPositionMouse = x;
+	yPositionMouse = y;
 	if ((!frameByframe) && allowSpeedchange) {
         int width = ofGetWidth();
         float pct = (float)x / (float)width;
@@ -162,9 +191,8 @@ void testApp::mouseDragged(int x, int y, int button){
 
 //--------------------------------------------------------------
 void testApp::mousePressed(int x, int y, int button){
-	if(!frameByframe){
-        MasterShot.setPaused(true);
-	}
+	selectedChannel = pixelMap.getClipNumber(x-xOffsetVideo, y-yOffsetVideo,selectedChannel,MasterShot.getPosition()*MasterShot.getDuration());
+	
 }
 
 

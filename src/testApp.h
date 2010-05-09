@@ -3,6 +3,7 @@
 
 
 #include "ofMain.h"
+#include "PixelMapToVideo.h"
 
 class testApp : public ofBaseApp{
 
@@ -26,6 +27,10 @@ class testApp : public ofBaseApp{
 		bool				suspendNow;
 		bool				allowSpeedchange;
 		int					selectedChannel;
+		PixelMapToVideo		pixelMap;
+	
+	private:
+		void drawDividedScreenClip();
 };
 
 #endif
