@@ -7,8 +7,9 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
+		840FF231119828E7002FE051 /* ClipList.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 840FF230119828E7002FE051 /* ClipList.cpp */; };
+		84BDA3B3119760DA008B80D2 /* PixelMapToVideo.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 84BDA3B2119760DA008B80D2 /* PixelMapToVideo.cpp */; };
 		D045D9011197035C0095C761 /* QuickTime.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = E45BE97A0E8CC7DD009D7055 /* QuickTime.framework */; };
-		D0D1FCE01197082900342DAE /* PixelMapToVideo.cpp in Sources */ = {isa = PBXBuildFile; fileRef = D0D1FCDF1197082900342DAE /* PixelMapToVideo.cpp */; };
 		E446644B0F5B1CFD005D0BF0 /* ofAppGlutWindow.cpp in Sources */ = {isa = PBXBuildFile; fileRef = E446641A0F5B1CFD005D0BF0 /* ofAppGlutWindow.cpp */; };
 		E446644C0F5B1CFD005D0BF0 /* ofAppRunner.cpp in Sources */ = {isa = PBXBuildFile; fileRef = E446641C0F5B1CFD005D0BF0 /* ofAppRunner.cpp */; };
 		E446644D0F5B1CFD005D0BF0 /* ofArduino.cpp in Sources */ = {isa = PBXBuildFile; fileRef = E44664200F5B1CFD005D0BF0 /* ofArduino.cpp */; };
@@ -52,8 +53,10 @@
 /* End PBXBuildFile section */
 
 /* Begin PBXFileReference section */
-		D0D1FCDE1197082900342DAE /* PixelMapToVideo.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = PixelMapToVideo.h; path = Private/of_preRelease_v0.06_xcode/apps/examples/IVClip/src/PixelMapToVideo.h; sourceTree = SYSTEM_DEVELOPER_DIR; };
-		D0D1FCDF1197082900342DAE /* PixelMapToVideo.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = PixelMapToVideo.cpp; path = Private/of_preRelease_v0.06_xcode/apps/examples/IVClip/src/PixelMapToVideo.cpp; sourceTree = SYSTEM_DEVELOPER_DIR; };
+		840FF22F119828E7002FE051 /* ClipList.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = ClipList.h; path = Private/of_preRelease_v0.06_xcode/apps/examples/interactiveMovieDemo/src/ClipList.h; sourceTree = SYSTEM_DEVELOPER_DIR; };
+		840FF230119828E7002FE051 /* ClipList.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = ClipList.cpp; path = Private/of_preRelease_v0.06_xcode/apps/examples/interactiveMovieDemo/src/ClipList.cpp; sourceTree = SYSTEM_DEVELOPER_DIR; };
+		84BDA3B2119760DA008B80D2 /* PixelMapToVideo.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = PixelMapToVideo.cpp; path = Private/of_preRelease_v0.06_xcode/apps/examples/interactiveMovieDemo/src/PixelMapToVideo.cpp; sourceTree = SYSTEM_DEVELOPER_DIR; };
+		84BDA3B4119760E8008B80D2 /* PixelMapToVideo.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = PixelMapToVideo.h; path = Private/of_preRelease_v0.06_xcode/apps/examples/interactiveMovieDemo/src/PixelMapToVideo.h; sourceTree = SYSTEM_DEVELOPER_DIR; };
 		E44664190F5B1CFD005D0BF0 /* ofAppBaseWindow.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = ofAppBaseWindow.h; path = ../../../libs/openFrameworks/app/ofAppBaseWindow.h; sourceTree = SOURCE_ROOT; };
 		E446641A0F5B1CFD005D0BF0 /* ofAppGlutWindow.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = ofAppGlutWindow.cpp; path = ../../../libs/openFrameworks/app/ofAppGlutWindow.cpp; sourceTree = SOURCE_ROOT; };
 		E446641B0F5B1CFD005D0BF0 /* ofAppGlutWindow.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = ofAppGlutWindow.h; path = ../../../libs/openFrameworks/app/ofAppGlutWindow.h; sourceTree = SOURCE_ROOT; };
@@ -743,11 +746,13 @@
 		E4B69E1C0A3A1BDC003C02F2 /* src */ = {
 			isa = PBXGroup;
 			children = (
+				84BDA3B4119760E8008B80D2 /* PixelMapToVideo.h */,
+				84BDA3B2119760DA008B80D2 /* PixelMapToVideo.cpp */,
 				E4B69E1D0A3A1BDC003C02F2 /* main.cpp */,
 				E4B69E1F0A3A1BDC003C02F2 /* testApp.h */,
-				D0D1FCDE1197082900342DAE /* PixelMapToVideo.h */,
 				E4B69E1E0A3A1BDC003C02F2 /* testApp.cpp */,
-				D0D1FCDF1197082900342DAE /* PixelMapToVideo.cpp */,
+				840FF22F119828E7002FE051 /* ClipList.h */,
+				840FF230119828E7002FE051 /* ClipList.cpp */,
 			);
 			path = src;
 			sourceTree = SOURCE_ROOT;
@@ -843,7 +848,8 @@
 				E446645A0F5B1CFD005D0BF0 /* ofUCUtils.cpp in Sources */,
 				E446645B0F5B1CFD005D0BF0 /* ofVideoGrabber.cpp in Sources */,
 				E446645C0F5B1CFD005D0BF0 /* ofVideoPlayer.cpp in Sources */,
-				D0D1FCE01197082900342DAE /* PixelMapToVideo.cpp in Sources */,
+				84BDA3B3119760DA008B80D2 /* PixelMapToVideo.cpp in Sources */,
+				840FF231119828E7002FE051 /* ClipList.cpp in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};

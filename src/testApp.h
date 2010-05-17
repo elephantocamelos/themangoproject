@@ -4,6 +4,7 @@
 
 #include "ofMain.h"
 #include "PixelMapToVideo.h"
+#include "ClipList.h"
 
 class testApp : public ofBaseApp{
 
@@ -27,10 +28,11 @@ class testApp : public ofBaseApp{
 		bool				suspendNow;
 		bool				allowSpeedchange;
 		int					selectedChannel;
-		PixelMapToVideo		pixelMap;
 	
 	private:
 		void drawDividedScreenClip();
+		PixelMapToVideo*	pixelMap;
+		ClipList*	clipList;
 };
 
 #endif

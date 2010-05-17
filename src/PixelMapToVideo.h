@@ -10,9 +10,16 @@
 
 class PixelMapToVideo{
 	
+	int width;
+	int nbClips;
+	int height;
+	
 public:
 	
-	PixelMapToVideo();
+	PixelMapToVideo(int w, int h, int numberClips);
 	
 	int getClipNumber(int posX, int posY, int clipPlaying, int timeInSecond);
+	
+	void highlightClickable(int clipPlaying, int xOffset, int yOffset);
+	void switchClips(int a, int b);
 };

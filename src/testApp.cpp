@@ -9,7 +9,11 @@ int xPositionMouse= 0;
 int xOffsetVideo = 20;
 int yOffsetVideo = 20;
 int totalSizeVideo = 0;
-int numberClips = 3;
+int numberClips = 4;
+int selectedClip = 0;
+int positionXMouseClick = 0;
+bool draggingClip = false;
+bool highlightActivated = false;
 
 //--------------------------------------------------------------
 // constructeur de l'application test 
@@ -19,42 +23,23 @@ testApp::testApp(){
 //--------------------------------------------------------------
 void testApp::setup(){
 	ofBackground(255,255,255);
-	totalSizeVideo = MasterShot.width;
-
-	printf("Hello world !\n");
 	
 	suspendNow = true;
 	allowSpeedchange = false;
 	
-	MasterShot.loadMovie("movies/wide-shot.m4v");
-	ChordsHand.loadMovie("movies/chords-hand.m4v");
-	PickinHand.loadMovie("movies/pickin-hand.m4v");
-	TVedit.loadMovie("movies/TV-edit.m4v");
+	ClipList listOfClips(numberClips);
+	*clipList = listOfClips;
+	clipList->loadClips();
+	totalSizeVideo = clipList->getWidthClips();
+	PixelMapToVideo pixelMapBuilt(clipList->getWidthClips(), clipList->getHeightClips(),numberClips);
+	*pixelMap = pixelMapBuilt;
 	
-	ChordsHand.setVolume(0);
-	PickinHand.setVolume(0);
-	TVedit.setVolume(0);
-	
-	selectedChannel = 1; // channel 1 is the master shot
-	
-	MasterShot.play();
-	ChordsHand.play();
-	PickinHand.play();
-	TVedit.play();
+	selectedChannel = 0;
 }
 
 //--------------------------------------------------------------
 void testApp::update(){
-    MasterShot.idleMovie();
-	ChordsHand.idleMovie();
-	PickinHand.idleMovie();
-	TVedit.idleMovie();
-}
-
-void testApp::drawDividedScreenClip(){
-	int i=1;
-	MasterShot.draw(xOffsetVideo,yOffsetVideo,MasterShot.width/2, MasterShot.height);
-	//xOffsetVideo-((numberClips-i)*totalSizeVideo/(2*numberClips)),
+	clipList->update();
 }
 
 //--------------------------------------------------------------
@@ -65,27 +50,20 @@ void testApp::draw(){
 	
 	switch (selectedChannel) {
 		case 0:
-			drawDividedScreenClip();
-			
-			break;
-		case 1:
-			MasterShot.draw(xOffsetVideo,yOffsetVideo);
-			break;
-		case 2:
-			ChordsHand.draw(xOffsetVideo,yOffsetVideo);
-			break;
-		case 3:
-			PickinHand.draw(xOffsetVideo,yOffsetVideo);
-			break;
-		case 4:
-			TVedit.draw(xOffsetVideo,yOffsetVideo);
+			if(draggingClip){
+				clipList->drawDividedScreenClipSwitching(xOffsetVideo, yOffsetVideo, selectedClip, xPositionMouse-positionXMouseClick);
+			}else{
+				clipList->drawDividedScreenClip(xOffsetVideo,yOffsetVideo);
+			}
 			break;
 		default:
+			clipList->drawClips(selectedChannel, xOffsetVideo,yOffsetVideo);
 			break;
 	}
 
+	/**
 	if (!suspendNow)
-		MasterShot.draw(xOffsetVideo,yOffsetVideo);
+	//	MasterShot.draw(xOffsetVideo,yOffsetVideo);
     
     ofSetColor(0x000000);
     unsigned char * pixels = MasterShot.getPixels();
@@ -98,7 +76,7 @@ void testApp::draw(){
             float val = 1 - ((float)r / 255.0f);
             ofCircle(400 + i,20+j,10*val);
         }
-    }
+    }**/
 
 
     ofSetColor(0x000000);
@@ -110,16 +88,22 @@ void testApp::draw(){
     ofSetColor(0x000000);
 	
 	ofDrawBitmapString("mousePosition: " + ofToString(xPositionMouse) + "/"+ofToString(yPositionMouse),20,380);
+    ofDrawBitmapString("Debug: " + ofToString(clipList->testFunction()) ,20,400);
     
-
-    ofDrawBitmapString("frame: " + ofToString(MasterShot.getCurrentFrame()) + "/"+ofToString(MasterShot.getTotalNumFrames()),20,420);
-    ofDrawBitmapString("duration: " + ofToString(MasterShot.getPosition()*MasterShot.getDuration(),2) + "/"+ofToString(MasterShot.getDuration(),2),20,440);
-    ofDrawBitmapString("speed: " + ofToString(MasterShot.getSpeed(),2),20,460);
-
-    if(MasterShot.getIsMovieDone()){
+	
+    ofDrawBitmapString("frame: " + ofToString(clipList->getCurrentFrame()) + "/"+ofToString(clipList->getTotalFrames()),20,420);
+    ofDrawBitmapString("duration: " + ofToString(clipList->getPosition()*clipList->getDuration(),2) + "/"+ofToString(clipList->getDuration(),2),20,440);
+    //ofDrawBitmapString("speed: " + ofToString(clipList.getSpeed(),2),20,460);
+	 
+    if(clipList->clipsAreFinished()){
         ofSetColor(0xFF0000);
         ofDrawBitmapString("end of movie",20,440);
     }
+	
+	if(highlightActivated){
+		pixelMap->highlightClickable(selectedChannel, xOffsetVideo, yOffsetVideo);
+	}
+	
 }
 
 
@@ -141,7 +125,10 @@ void testApp::keyPressed  (int key){
 		case '4':
             selectedChannel = 4;
 		break;
+		case 'h':
+            highlightActivated = true;		
         case 'f':
+			
             frameByframe=!frameByframe;
             MasterShot.setPaused(frameByframe);
         break;
@@ -152,55 +139,71 @@ void testApp::keyPressed  (int key){
             allowSpeedchange = !allowSpeedchange;
 			break;
         case OF_KEY_LEFT:
-            MasterShot.previousFrame();
+            //MasterShot.previousFrame();
         break;
         case OF_KEY_RIGHT:
-            MasterShot.nextFrame();
+            //MasterShot.nextFrame();
         break;
         case 'b':
-            MasterShot.firstFrame();
+            //MasterShot.firstFrame();
         break;
     }
 }
 
 //--------------------------------------------------------------
 void testApp::keyReleased(int key){
-
+	highlightActivated = false;
 }
 
 //--------------------------------------------------------------
 void testApp::mouseMoved(int x, int y ){
 	xPositionMouse = x;
 	yPositionMouse = y;
-	if ((!frameByframe) && allowSpeedchange) {
+	/**if ((!frameByframe) && allowSpeedchange) {
         int width = ofGetWidth();
         float pct = (float)x / (float)width;
         float speed = (2 * pct - 1) * 5.0f;
         MasterShot.setSpeed(speed);
-	}
+	}**/
 }
 
 //--------------------------------------------------------------
 void testApp::mouseDragged(int x, int y, int button){
-	if(!frameByframe){
+	xPositionMouse = x;
+	yPositionMouse = y;
+	/**if(!frameByframe){
         int width = ofGetWidth();
         float pct = (float)x / (float)width;
         MasterShot.setPosition(pct);
+	}**/
+	if(selectedChannel == 0){
+		draggingClip = true;
 	}
 }
 
 //--------------------------------------------------------------
 void testApp::mousePressed(int x, int y, int button){
-	selectedChannel = pixelMap.getClipNumber(x-xOffsetVideo, y-yOffsetVideo,selectedChannel,MasterShot.getPosition()*MasterShot.getDuration());
-	
+	selectedClip = pixelMap -> getClipNumber(x-xOffsetVideo, y-yOffsetVideo,selectedChannel,clipList->getPosition()*clipList->getDuration());
+	positionXMouseClick = x;
+	if(!frameByframe){
+        //MasterShot.setPaused(true);
+	}
 }
 
 
 //--------------------------------------------------------------
 void testApp::mouseReleased(int x, int y, int button){
 	if(!frameByframe){
-        MasterShot.setPaused(false);
+        //MasterShot.setPaused(false);
 	}
+	int clipTargetedWhenReleased = pixelMap -> getClipNumber(x-xOffsetVideo, y-yOffsetVideo,selectedChannel,clipList->getPosition()*clipList->getDuration());
+	if(selectedChannel == 0 && draggingClip && clipTargetedWhenReleased != selectedClip){
+		pixelMap->switchClips(selectedClip, clipTargetedWhenReleased);
+		clipList->switchClips(selectedClip, clipTargetedWhenReleased);
+	}else if(clipTargetedWhenReleased == selectedClip){
+		selectedChannel = selectedClip;
+	}
+	draggingClip = false;
 }
 
 //--------------------------------------------------------------
