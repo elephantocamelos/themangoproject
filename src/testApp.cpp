@@ -9,12 +9,15 @@ int xPositionMouse= 0;
 int xOffsetVideo = 20;
 int yOffsetVideo = 20;
 int totalSizeVideo = 0;
-int numberClips = 4;
+int numberClips = 3;
 int selectedClip = 0;
 int positionXMouseClick = 0;
 bool draggingClip = false;
 bool highlightActivated = false;
-
+bool sidebarShown = false;
+bool sidebarClick = false;
+bool cancelClick = false;
+bool recordingJourney = false;
 //--------------------------------------------------------------
 // constructeur de l'application test 
 testApp::testApp(){
@@ -24,15 +27,25 @@ testApp::testApp(){
 void testApp::setup(){
 	ofBackground(255,255,255);
 	
-	suspendNow = true;
+	suspendNow = false;
 	allowSpeedchange = false;
 	
-	ClipList listOfClips(numberClips);
-	*clipList = listOfClips;
+	//ClipList listOfClips(numberClips);
+	clipList = new ClipList(numberClips);
 	clipList->loadClips();
 	totalSizeVideo = clipList->getWidthClips();
-	PixelMapToVideo pixelMapBuilt(clipList->getWidthClips(), clipList->getHeightClips(),numberClips);
-	*pixelMap = pixelMapBuilt;
+	//PixelMapToVideo pixelMapBuilt(clipList->getWidthClips(), clipList->getHeightClips(),numberClips);
+	pixelMap = new PixelMapToVideo(clipList->getWidthClips(), clipList->getHeightClips(),numberClips);
+	//ClipTravellingStory clipStoryCreator(numberClips);
+	travelStory = new ClipTravellingStory(numberClips);
+	
+	buttonHighlightImage.loadImage("icons/-1.tif");
+	buttonBackImage.loadImage("icons/-2.tif");
+	buttonForwardImage.loadImage("icons/-2bis.tif");
+	buttonPlayImage.loadImage("icons/-4.tif");
+	buttonPauseImage.loadImage("icons/-3.tif");
+	buttonStopImage.loadImage("icons/-6.tif");
+	
 	
 	selectedChannel = 0;
 }
@@ -77,18 +90,36 @@ void testApp::draw(){
             ofCircle(400 + i,20+j,10*val);
         }
     }**/
-
+	
+	if(sidebarShown){
+		ofEnableAlphaBlending();
+		ofSetColor(255,255,255,100);
+		ofRect(xOffsetVideo,yOffsetVideo+(clipList->getHeightClips()*0.75),clipList->getWidthClips(),clipList->getHeightClips()*0.25);
+		ofSetColor(255,255,255,220);
+		buttonBackImage.draw(xOffsetVideo,yOffsetVideo+(clipList->getHeightClips()*0.75),clipList->getHeightClips()*0.25,clipList->getHeightClips()*0.25);
+		buttonForwardImage.draw(xOffsetVideo+(clipList->getHeightClips()*0.25),yOffsetVideo+(clipList->getHeightClips()*0.75),clipList->getHeightClips()*0.25,clipList->getHeightClips()*0.25);
+		buttonHighlightImage.draw(xOffsetVideo+(clipList->getHeightClips()*0.5),yOffsetVideo+(clipList->getHeightClips()*0.75),clipList->getHeightClips()*0.25,clipList->getHeightClips()*0.25);
+		if(suspendNow){
+			buttonPlayImage.draw(xOffsetVideo+clipList->getWidthClips()-(clipList->getHeightClips()*0.5),yOffsetVideo+(clipList->getHeightClips()*0.75),clipList->getHeightClips()*0.25,clipList->getHeightClips()*0.25);
+		}else{
+			buttonPauseImage.draw(xOffsetVideo+clipList->getWidthClips()-(clipList->getHeightClips()*0.5),yOffsetVideo+(clipList->getHeightClips()*0.75),clipList->getHeightClips()*0.25,clipList->getHeightClips()*0.25);
+		}
+		buttonStopImage.draw(xOffsetVideo+clipList->getWidthClips()-(clipList->getHeightClips()*0.25),yOffsetVideo+(clipList->getHeightClips()*0.75),clipList->getHeightClips()*0.25,clipList->getHeightClips()*0.25);
+		ofSetColor(0x000000);
+		ofDrawBitmapString("Splitscreen",xOffsetVideo+(clipList->getHeightClips()*0.75),yOffsetVideo+(clipList->getHeightClips()*0.9));
+		ofDisableAlphaBlending();
+	}
 
     ofSetColor(0x000000);
-	ofDrawBitmapString("press f to change",20,320);
+	
+	/**ofDrawBitmapString("press f to change",20,320);
     if(frameByframe) ofSetColor(0xCCCCCC);
     ofDrawBitmapString("mouse speed position",20,340);
     if(!frameByframe) ofSetColor(0xCCCCCC); else ofSetColor(0x000000);
-    ofDrawBitmapString("keys <- -> frame by frame " ,190,340);
-    ofSetColor(0x000000);
+    ofDrawBitmapString("keys <- -> frame by frame " ,190,340);**/
 	
 	ofDrawBitmapString("mousePosition: " + ofToString(xPositionMouse) + "/"+ofToString(yPositionMouse),20,380);
-    ofDrawBitmapString("Debug: " + ofToString(clipList->testFunction()) ,20,400);
+    ofDrawBitmapString("Debug: " + ofToString(1) ,20,400);
     
 	
     ofDrawBitmapString("frame: " + ofToString(clipList->getCurrentFrame()) + "/"+ofToString(clipList->getTotalFrames()),20,420);
@@ -101,7 +132,7 @@ void testApp::draw(){
     }
 	
 	if(highlightActivated){
-		pixelMap->highlightClickable(selectedChannel, xOffsetVideo, yOffsetVideo);
+		pixelMap->highlightClickable(selectedChannel, xOffsetVideo, yOffsetVideo, clipList->getCurrentFrame());
 	}
 	
 }
@@ -111,18 +142,23 @@ void testApp::draw(){
 void testApp::keyPressed  (int key){
     switch(key){
 		case '0':
+			travelStory->switchFromClip(selectedChannel);
             selectedChannel = 0;
 			break;
 		case '1':
+			travelStory->switchFromClip(selectedChannel);
             selectedChannel = 1;
 		break;
 		case '2':
+			travelStory->switchFromClip(selectedChannel);
             selectedChannel = 2;
 		break;
 		case '3':
+			travelStory->switchFromClip(selectedChannel);
             selectedChannel = 3;
 		break;
 		case '4':
+			travelStory->switchFromClip(selectedChannel);
             selectedChannel = 4;
 		break;
 		case 'h':
@@ -134,14 +170,21 @@ void testApp::keyPressed  (int key){
         break;
 		case 's':
             suspendNow = !suspendNow;
+			if(suspendNow){
+				clipList->pauseClips();
+			}else{
+				clipList->unpauseClips();
+			}
 		break;
 		case 't':
             allowSpeedchange = !allowSpeedchange;
 			break;
         case OF_KEY_LEFT:
+			selectedChannel = travelStory->goBackClip(selectedChannel);
             //MasterShot.previousFrame();
         break;
         case OF_KEY_RIGHT:
+			selectedChannel = travelStory->goForwardClip(selectedChannel);
             //MasterShot.nextFrame();
         break;
         case 'b':
@@ -159,6 +202,17 @@ void testApp::keyReleased(int key){
 void testApp::mouseMoved(int x, int y ){
 	xPositionMouse = x;
 	yPositionMouse = y;
+	if( (y > clipList->getHeightClips()*0.9+yOffsetVideo) &&
+	   (y < clipList->getHeightClips()+yOffsetVideo) &&
+		(x < clipList->getWidthClips()+xOffsetVideo) &&
+		(x > xOffsetVideo)){
+		sidebarShown = true;
+	}
+	
+	if( (y > clipList->getHeightClips()+yOffsetVideo) ||
+	   (y < clipList->getHeightClips()*0.8+yOffsetVideo)){
+		sidebarShown = false;
+	}
 	/**if ((!frameByframe) && allowSpeedchange) {
         int width = ofGetWidth();
         float pct = (float)x / (float)width;
@@ -176,15 +230,25 @@ void testApp::mouseDragged(int x, int y, int button){
         float pct = (float)x / (float)width;
         MasterShot.setPosition(pct);
 	}**/
-	if(selectedChannel == 0){
+	if(selectedChannel == 0 && !sidebarClick){
 		draggingClip = true;
+	}else if(sidebarClick){
+		cancelClick = true;
 	}
 }
 
 //--------------------------------------------------------------
 void testApp::mousePressed(int x, int y, int button){
-	selectedClip = pixelMap -> getClipNumber(x-xOffsetVideo, y-yOffsetVideo,selectedChannel,clipList->getPosition()*clipList->getDuration());
-	positionXMouseClick = x;
+	if(sidebarShown &&
+	   (y > clipList->getHeightClips()*0.75+yOffsetVideo) &&
+		(y < clipList->getHeightClips()+yOffsetVideo) &&
+		(x < clipList->getWidthClips()+xOffsetVideo) &&
+		(x > xOffsetVideo)){
+		sidebarClick = true;
+	}else{
+		selectedClip = pixelMap -> getClipNumber(x-xOffsetVideo, y-yOffsetVideo,selectedChannel,clipList->getCurrentFrame());
+		positionXMouseClick = x;
+	}
 	if(!frameByframe){
         //MasterShot.setPaused(true);
 	}
@@ -193,15 +257,44 @@ void testApp::mousePressed(int x, int y, int button){
 
 //--------------------------------------------------------------
 void testApp::mouseReleased(int x, int y, int button){
-	if(!frameByframe){
-        //MasterShot.setPaused(false);
+	if (cancelClick){
+		sidebarClick = false;
+		cancelClick = false;
 	}
-	int clipTargetedWhenReleased = pixelMap -> getClipNumber(x-xOffsetVideo, y-yOffsetVideo,selectedChannel,clipList->getPosition()*clipList->getDuration());
-	if(selectedChannel == 0 && draggingClip && clipTargetedWhenReleased != selectedClip){
-		pixelMap->switchClips(selectedClip, clipTargetedWhenReleased);
-		clipList->switchClips(selectedClip, clipTargetedWhenReleased);
-	}else if(clipTargetedWhenReleased == selectedClip){
-		selectedChannel = selectedClip;
+	else if(sidebarClick){
+		if((x < clipList->getHeightClips()*0.25+xOffsetVideo) &&
+		   (x > xOffsetVideo)){
+			selectedChannel = travelStory->goBackClip(selectedChannel);
+		}else if((x < clipList->getHeightClips()*0.5+xOffsetVideo) &&
+				 (x > clipList->getHeightClips()*0.25+xOffsetVideo)){
+			selectedChannel = travelStory->goForwardClip(selectedChannel);
+		}else if((x < clipList->getHeightClips()*0.75+xOffsetVideo) &&
+				 (x > clipList->getHeightClips()*0.5+xOffsetVideo)){
+			highlightActivated = !highlightActivated;
+		}else if(x > clipList->getHeightClips()*0.75+xOffsetVideo &&
+			x < xOffsetVideo+clipList->getWidthClips()-(clipList->getHeightClips()*0.5)){
+			keyPressed('0');
+		}else if( x > xOffsetVideo+clipList->getWidthClips()-(clipList->getHeightClips()*0.5) &&
+				  x < xOffsetVideo+clipList->getWidthClips()-(clipList->getHeightClips()*0.25)){
+			keyPressed('s');
+		}else if( x > xOffsetVideo+clipList->getWidthClips()-(clipList->getHeightClips()*0.25) &&
+				 x < xOffsetVideo+clipList->getWidthClips()){
+			exit();
+		}
+		sidebarClick = false;
+	}else{
+		int clipTargetedWhenReleased =  pixelMap -> getClipNumber(x-xOffsetVideo, y-yOffsetVideo,selectedChannel,clipList->getCurrentFrame());
+		if(selectedChannel == 0 && draggingClip && clipTargetedWhenReleased != selectedClip){
+			if(clipTargetedWhenReleased != 0){
+				pixelMap->switchClips(selectedClip, clipTargetedWhenReleased);
+				clipList->switchClips(selectedClip, clipTargetedWhenReleased);
+			}
+		}else if(clipTargetedWhenReleased == selectedClip){
+			if(selectedClip != selectedChannel){
+				travelStory->switchFromClip(selectedChannel);
+			}
+			selectedChannel = selectedClip;
+		}
 	}
 	draggingClip = false;
 }

@@ -18,8 +18,8 @@ public:
 	
 	PixelMapToVideo(int w, int h, int numberClips);
 	
-	int getClipNumber(int posX, int posY, int clipPlaying, int timeInSecond);
+	int getClipNumber(int posX, int posY, int clipPlaying, int framePlaying);
 	
-	void highlightClickable(int clipPlaying, int xOffset, int yOffset);
+	void highlightClickable(int clipPlaying, int xOffset, int yOffset, int framePlaying);
 	void switchClips(int a, int b);
 };

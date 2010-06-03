@@ -24,6 +24,8 @@ public:
 	void drawClips(int clipToDraw, int xOffsetVideo, int yOffsetVideo);
 	void drawDividedScreenClip(int xOffsetVideo, int yOffsetVideo);
 	void drawDividedScreenClipSwitching(int xOffsetVideo, int yOffsetVideo, int clipMoving, int moveOffset);
+	void pauseClips();
+	void unpauseClips();
 	
 	int getWidthClips();
 	int getHeightClips();
@@ -36,7 +38,7 @@ public:
 	
 	bool clipsAreFinished();
 	bool switchClips(int a, int b);
-	
-	std::vector<ofVideoPlayer*> clips;
+private:
+	void drawClipInSlice(int xOffsetVideo, int yOffsetVideo, int indexOfSlide);
 	
 };
